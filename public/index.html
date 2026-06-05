@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Automation Audit — Find Your 90-Day Quick Wins</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0a;
+    --paper: #f5f0e8;
+    --accent: #d4420a;
+    --accent2: #1a3a2a;
+    --muted: #8a8070;
+    --border: #d8d0c0;
+    --card: #fffdf7;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.6;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 72px 24px 48px;
+  }
+
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .eyebrow::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(56px, 10vw, 108px);
+    line-height: 0.92;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    margin-bottom: 32px;
+  }
+
+  h1 span {
+    color: var(--accent);
+    display: block;
+  }
+
+  .hero-sub {
+    font-size: 18px;
+    font-weight: 300;
+    color: #3a3530;
+    max-width: 520px;
+    margin-bottom: 40px;
+    line-height: 1.7;
+  }
+
+  .hero-proof {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+  }
+
+  .proof-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .proof-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--accent2);
+    line-height: 1;
+  }
+
+  .proof-label {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+    margin: 48px 0;
+  }
+
+  /* ── AUDIT FORM ── */
+  .audit-section {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    letter-spacing: 0.03em;
+    margin-bottom: 8px;
+  }
+
+  .section-desc {
+    font-size: 15px;
+    color: #5a5248;
+    margin-bottom: 40px;
+  }
+
+  /* progress bar */
+  .progress-bar-wrap {
+    background: var(--border);
+    height: 3px;
+    border-radius: 2px;
+    margin-bottom: 40px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  /* question cards */
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin-bottom: 16px;
+    display: none;
+    animation: slideIn 0.3s ease;
+  }
+
+  .question-card.active { display: block; }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+
+  .q-text {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
+
+  .q-hint {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+
+  /* options grid */
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .options-grid.single { grid-template-columns: 1fr; }
+
+  .opt-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 12px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s ease;
+    line-height: 1.4;
+  }
+
+  .opt-btn:hover {
+    border-color: var(--accent);
+    background: #fdf5f0;
+    color: var(--accent);
+  }
+
+  .opt-btn.selected {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* text input */
+  .q-input {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 14px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s;
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .q-input:focus { border-color: var(--accent); }
+  .q-input::placeholder { color: var(--muted); }
+
+  /* nav buttons */
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 32px;
+  }
+
+  .btn-back {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 12px 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-back:hover { border-color: var(--ink); color: var(--ink); }
+
+  .btn-next {
+    background: var(--ink);
+    border: none;
+    border-radius: 3px;
+    padding: 14px 36px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.15s;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-next:hover { background: var(--accent); }
+  .btn-next:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+
+  .btn-generate {
+    background: var(--accent);
+    border: none;
+    border-radius: 3px;
+    padding: 16px 40px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 0.08em;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-generate:hover { background: #b8370a; transform: translateY(-1px); }
+  .btn-generate:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; }
+
+  /* ── LOADING ── */
+  #loading-state {
+    display: none;
+    text-align: center;
+    padding: 80px 24px;
+  }
+
+  .loader-ring {
+    width: 48px;
+    height: 48px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 24px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loader-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .loader-messages {
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--muted);
+    height: 20px;
+  }
+
+  /* ── RESULTS ── */
+  #results-state {
+    display: none;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 100px;
+    animation: slideIn 0.5s ease;
+  }
+
+  .results-header {
+    margin-bottom: 48px;
+  }
+
+  .results-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 7vw, 72px);
+    line-height: 0.95;
+    margin-bottom: 16px;
+  }
+
+  .results-header h2 em {
+    color: var(--accent);
+    font-style: normal;
+  }
+
+  .results-header p {
+    font-size: 16px;
+    color: #5a5248;
+    max-width: 560px;
+  }
+
+  .report-body {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 40px 44px;
+    font-size: 15px;
+    line-height: 1.8;
+    color: #2a2520;
+  }
+
+  .report-body h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    margin: 32px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .report-body h2:first-child { margin-top: 0; }
+
+  .report-body h3 {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--accent);
+    margin: 20px 0 8px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-size: 12px;
+  }
+
+  .report-body p { margin-bottom: 14px; }
+
+  .report-body ul {
+    margin: 8px 0 14px 20px;
+  }
+
+  .report-body li {
+    margin-bottom: 8px;
+    color: #3a3530;
+  }
+
+  .report-body strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .report-body .highlight-box {
+    background: #fdf5f0;
+    border-left: 3px solid var(--accent);
+    padding: 16px 20px;
+    margin: 20px 0;
+    border-radius: 0 3px 3px 0;
+  }
+
+  /* CTA after results */
+  .results-cta {
+    margin-top: 40px;
+    background: var(--accent2);
+    border-radius: 4px;
+    padding: 40px 44px;
+    color: #e8f0ec;
+  }
+
+  .results-cta h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 0.04em;
+    margin-bottom: 12px;
+    color: #fff;
+  }
+
+  .results-cta p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #b0c8b8;
+    margin-bottom: 24px;
+    max-width: 480px;
+  }
+
+  .btn-cta {
+    display: inline-block;
+    background: #fff;
+    color: var(--accent2);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 0.06em;
+    padding: 14px 32px;
+    border-radius: 3px;
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+
+  .btn-cta:hover {
+    background: var(--paper);
+    transform: translateY(-1px);
+  }
+
+  .btn-restart {
+    display: inline-block;
+    margin-top: 16px;
+    background: transparent;
+    border: 1px solid #3a5a48;
+    color: #7a9a88;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 10px 20px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-left: 16px;
+  }
+
+  .btn-restart:hover { border-color: #fff; color: #fff; }
+
+  /* footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 24px;
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  @media (max-width: 600px) {
+    .options-grid { grid-template-columns: 1fr; }
+    .hero-proof { gap: 20px; }
+    .report-body { padding: 24px 20px; }
+    .results-cta { padding: 28px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="eyebrow">Free AI Audit Tool</div>
+  <h1>STOP DOING<span>THINGS TWICE.</span></h1>
+  <p class="hero-sub">Answer 10 questions about your business. Get a personalized 90-day AI automation roadmap — specific tools, specific tasks, specific wins.</p>
+  <div class="hero-proof">
+    <div class="proof-item">
+      <span class="proof-num">10</span>
+      <span class="proof-label">Questions</span>
+    </div>
+    <div class="proof-item">
+      <span class="proof-num">90</span>
+      <span class="proof-label">Day Roadmap</span>
+    </div>
+    <div class="proof-item">
+      <span class="proof-num">~3</span>
+      <span class="proof-label">Minutes</span>
+    </div>
+    <div class="proof-item">
+      <span class="proof-num">$0</span>
+      <span class="proof-label">Cost Today</span>
+    </div>
+  </div>
+</div>
+
+<!-- AUDIT FORM -->
+<div class="audit-section" id="form-state">
+  <div class="section-label">Your Audit</div>
+  <div class="section-title">10 Questions</div>
+  <p class="section-desc">Be honest. Vague answers produce generic results. Specific answers produce a roadmap you can actually use.</p>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress-fill"></div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="question-card active" id="q1">
+    <div class="q-number">01 / 10</div>
+    <div class="q-text">What type of business do you run?</div>
+    <div class="options-grid">
+      <button class="opt-btn" data-q="1" data-val="Service business (trades, cleaning, landscaping, repair)">Service business (trades, cleaning, landscaping, repair)</button>
+      <button class="opt-btn" data-q="1" data-val="Consulting or professional services">Consulting or professional services</button>
+      <button class="opt-btn" data-q="1" data-val="Retail or e-commerce">Retail or e-commerce</button>
+      <button class="opt-btn" data-q="1" data-val="Restaurant or food service">Restaurant or food service</button>
+      <button class="opt-btn" data-q="1" data-val="Healthcare or wellness">Healthcare or wellness</button>
+      <button class="opt-btn" data-q="1" data-val="Real estate or property management">Real estate or property management</button>
+      <button class="opt-btn" data-q="1" data-val="Creative or media (photography, design, marketing)">Creative or media (photography, design, marketing)</button>
+      <button class="opt-btn" data-q="1" data-val="Other small business">Other small business</button>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="question-card" id="q2">
+    <div class="q-number">02 / 10</div>
+    <div class="q-text">How many people work in your business, including yourself?</div>
+    <div class="options-grid">
+      <button class="opt-btn" data-q="2" data-val="Just me (solo)">Just me (solo)</button>
+      <button class="opt-btn" data-q="2" data-val="2–5 people">2–5 people</button>
+      <button class="opt-btn" data-q="2" data-val="6–15 people">6–15 people</button>
+      <button class="opt-btn" data-q="2" data-val="16–50 people">16–50 people</button>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="question-card" id="q3">
+    <div class="q-number">03 / 10</div>
+    <div class="q-text">What's your biggest time drain every week?</div>
+    <div class="options-grid">
+      <button class="opt-btn" data-q="3" data-val="Answering the same customer questions over and over">Answering the same customer questions over and over</button>
+      <button class="opt-btn" data-q="3" data-val="Scheduling, rescheduling, and follow-ups">Scheduling, rescheduling, and follow-ups</button>
+      <button class="opt-btn" data-q="3" data-val="Invoicing, estimates, and payment chasing">Invoicing, estimates, and payment chasing</button>
+      <button class="opt-btn" data-q="3" data-val="Creating content (social media, emails, ads)">Creating content (social media, emails, ads)</button>
+      <button class="opt-btn" data-q="3" data-val="Hiring, onboarding, and managing staff">Hiring, onboarding, and managing staff</button>
+      <button class="opt-btn" data-q="3" data-val="Data entry and reporting">Data entry and reporting</button>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="question-card" id="q4">
+    <div class="q-number">04 / 10</div>
+    <div class="q-text">How do most of your new customers find you?</div>
+    <div class="options-grid">
+      <button class="opt-btn" data-q="4" data-val="Word of mouth / referrals">Word of mouth / referrals</button>
+      <button class="opt-btn" data-q="4" data-val="Google search / SEO">Google search / SEO</button>
+      <button class="opt-btn" data-q="4" data-val="Social media (Facebook, Instagram, TikTok)">Social media (Facebook, Instagram, TikTok)</button>
+      <button class="opt-btn" data-q="4" data-val="Paid ads (Google Ads, Facebook Ads)">Paid ads (Google Ads, Facebook Ads)</button>
+      <button class="opt-btn" data-q="4" data-val="Repeat customers / existing relationships">Repeat customers / existing relationships</button>
+      <button class="opt-btn" data-q="4" data-val="I don't really know / it's inconsistent">I don't really know / it's inconsistent</button>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="question-card" id="q5">
+    <div class="q-number">05 / 10</div>
+    <div class="q-text">How fast do you typically respond to new leads or inquiries?</div>
+    <div class="options-grid">
+      <button class="opt-btn" data-q="5" data-val="Within minutes (automated or always on)">Within minutes (automated or always on)</button>
+      <button class="opt-btn" data-q="5" data-val="Within a few hours">Within a few hours</button>
+      <button class="opt-btn" data-q="5" data-val="Same day, but sometimes next day">Same day, but sometimes next day</button>
+      <button class="opt-btn" data-q="5" data-val="Whenever I get around to it — it's a problem">Whenever I get around to it — it's a problem</button>
+    </div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="question-card" id="q6">
+    <div class="q-number">06 / 10</div>
+    <div class="q-text">Which of these tools does your business currently use? (Pick all that apply — or closest match)</div>
+    <div class="options-grid">
+      <button class="opt-btn" data-q="6" data-val="CRM (HubSpot, Salesforce, GoHighLevel, etc.)">CRM (HubSpot, Salesforce, GoHighLevel, etc.)</button>
+      <button class="opt-btn" data-q="6" data-val="Email marketing (Mailchimp, Klaviyo, etc.)">Email marketing (Mailchimp, Klaviyo, etc.)</button>
+      <button class="opt-btn" data-q="6" data-val="Scheduling software (Calendly, Acuity, etc.)">Scheduling software (Calendly, Acuity, etc.)</button>
+      <button class="opt-btn" data-q="6" data-val="Accounting software (QuickBooks, Wave, etc.)">Accounting software (QuickBooks, Wave, etc.)</button>
+      <button class="opt-btn" data-q="6" data-val="Project management (Trello, Asana, Monday, etc.)">Project management (Trello, Asana, Monday, etc.)</button>
+      <button class="opt-btn" data-q="6" data-val="Mostly spreadsheets and paper">Mostly spreadsheets and paper</button>
+      <button class="opt-btn" data-q="6" data-val="None of the above — very minimal tools">None of the above — very minimal tools</button>
+    </div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="question-card" id="q7">
+    <div class="q-number">07 / 10</div>
+    <div class="q-text">How comfortable are you with technology and new software?</div>
+    <div class="options-grid">
+      <button class="opt-btn" data-q="7" data-val="Very comfortable — I figure things out quickly">Very comfortable — I figure things out quickly</button>
+      <button class="opt-btn" data-q="7" data-val="Somewhat comfortable — I can follow instructions">Somewhat comfortable — I can follow instructions</button>
+      <button class="opt-btn" data-q="7" data-val="Not very comfortable — I need simple tools">Not very comfortable — I need simple tools</button>
+      <button class="opt-btn" data-q="7" data-val="I'd rather pay someone to handle it">I'd rather pay someone to handle it</button>
+    </div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="question-card" id="q8">
+    <div class="q-number">08 / 10</div>
+    <div class="q-text">What's your monthly revenue range?</div>
+    <div class="q-hint">This helps calibrate which tools are worth the investment for your size.</div>
+    <div class="options-grid">
+      <button class="opt-btn" data-q="8" data-val="Under $5K/month">Under $5K/month</button>
+      <button class="opt-btn" data-q="8" data-val="$5K–$20K/month">$5K–$20K/month</button>
+      <button class="opt-btn" data-q="8" data-val="$20K–$75K/month">$20K–$75K/month</button>
+      <button class="opt-btn" data-q="8" data-val="$75K+/month">$75K+/month</button>
+      <button class="opt-btn" data-q="8" data-val="Pre-revenue / just starting">Pre-revenue / just starting</button>
+    </div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="question-card" id="q9">
+    <div class="q-number">09 / 10</div>
+    <div class="q-text">What's your biggest fear about using AI in your business?</div>
+    <div class="options-grid">
+      <button class="opt-btn" data-q="9" data-val="It'll sound robotic and hurt my customer relationships">It'll sound robotic and hurt my customer relationships</button>
+      <button class="opt-btn" data-q="9" data-val="It's too complicated and I'll waste time setting it up">It's too complicated and I'll waste time setting it up</button>
+      <button class="opt-btn" data-q="9" data-val="It costs too much for the return I'll get">It costs too much for the return I'll get</button>
+      <button class="opt-btn" data-q="9" data-val="I'll become dependent on it and lose control">I'll become dependent on it and lose control</button>
+      <button class="opt-btn" data-q="9" data-val="I'm not really afraid — I just don't know where to start">I'm not really afraid — I just don't know where to start</button>
+    </div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="question-card" id="q10">
+    <div class="q-number">10 / 10</div>
+    <div class="q-text">Describe the one task you wish you could hand off completely and never think about again.</div>
+    <div class="q-hint">Be specific. "Customer follow-ups" is better than "admin work."</div>
+    <textarea class="q-input" id="q10-input" placeholder="e.g. Following up with leads who didn't book after getting a quote..."></textarea>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn-back" id="btn-back" onclick="prevQuestion()" style="visibility:hidden">← Back</button>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()" disabled>Next →</button>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="loading-state">
+  <div class="loader-ring"></div>
+  <div class="loader-text">BUILDING YOUR ROADMAP</div>
+  <div class="loader-messages" id="loader-msg">Analyzing your answers...</div>
+</div>
+
+<!-- RESULTS -->
+<div id="results-state">
+  <div class="results-header">
+    <div class="section-label">Your Personalized Report</div>
+    <h2>YOUR 90-DAY<br><em>AUTOMATION ROADMAP</em></h2>
+    <p>Based on your answers, here are the highest-leverage moves you can make in the next 90 days.</p>
+  </div>
+  <div class="report-body" id="report-content"></div>
+  <div class="results-cta">
+    <h3>Want This Implemented For You?</h3>
+    <p>This roadmap tells you what to do. If you want someone to build it out — AI-powered workflows, automated follow-ups, the whole system — that's exactly what CED Service does for small businesses.</p>
+    <a href="https://cedservice.com" class="btn-cta" target="_blank">TALK TO CED SERVICE →</a>
+    <button class="btn-restart" onclick="restartAudit()">Start Over</button>
+  </div>
+</div>
+
+<div class="footer">AI AUTOMATION AUDIT &nbsp;·&nbsp; POWERED BY CED SERVICE &nbsp;·&nbsp; CEDSERVICE.COM</div>
+
+<script>
+const answers = {};
+let currentQ = 1;
+const totalQ = 10;
+const multiSelect = [6]; // Q6 allows multiple
+
+// init multi-select tracking
+answers[6] = [];
+
+function updateProgress() {
+  const pct = ((currentQ - 1) / totalQ) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+function checkNextEnabled() {
+  const btn = document.getElementById('btn-next');
+  if (currentQ === 10) {
+    const val = document.getElementById('q10-input').value.trim();
+    btn.disabled = val.length < 5;
+    btn.textContent = 'Generate My Roadmap →';
+  } else if (multiSelect.includes(currentQ)) {
+    btn.disabled = answers[currentQ].length === 0;
+  } else {
+    btn.disabled = !answers[currentQ];
+  }
+}
+
+// option button clicks
+document.querySelectorAll('.opt-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const q = parseInt(this.dataset.q);
+    const val = this.dataset.val;
+
+    if (multiSelect.includes(q)) {
+      const idx = answers[q].indexOf(val);
+      if (idx === -1) {
+        answers[q].push(val);
+        this.classList.add('selected');
+      } else {
+        answers[q].splice(idx, 1);
+        this.classList.remove('selected');
+      }
+    } else {
+      document.querySelectorAll(`[data-q="${q}"]`).forEach(b => b.classList.remove('selected'));
+      this.classList.add('selected');
+      answers[q] = val;
+    }
+    checkNextEnabled();
+  });
+});
+
+document.getElementById('q10-input').addEventListener('input', checkNextEnabled);
+
+function nextQuestion() {
+  if (currentQ === 10) {
+    answers[10] = document.getElementById('q10-input').value.trim();
+    generateRoadmap();
+    return;
+  }
+
+  document.getElementById(`q${currentQ}`).classList.remove('active');
+  currentQ++;
+  document.getElementById(`q${currentQ}`).classList.add('active');
+  document.getElementById('btn-back').style.visibility = 'visible';
+
+  // reset next button
+  const btn = document.getElementById('btn-next');
+  btn.textContent = currentQ === 10 ? 'Generate My Roadmap →' : 'Next →';
+  checkNextEnabled();
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function prevQuestion() {
+  document.getElementById(`q${currentQ}`).classList.remove('active');
+  currentQ--;
+  document.getElementById(`q${currentQ}`).classList.add('active');
+  if (currentQ === 1) document.getElementById('btn-back').style.visibility = 'hidden';
+
+  const btn = document.getElementById('btn-next');
+  btn.textContent = 'Next →';
+  checkNextEnabled();
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function buildPrompt() {
+  const toolsList = Array.isArray(answers[6]) ? answers[6].join(', ') : answers[6];
+  return `You are a senior business automation consultant with deep expertise in AI tools for small businesses. A business owner has completed an audit. Your job is to write a SPECIFIC, ACTIONABLE 90-day AI automation roadmap for their exact situation.
+
+Here are their answers:
+1. Business type: ${answers[1]}
+2. Team size: ${answers[2]}
+3. Biggest time drain: ${answers[3]}
+4. How customers find them: ${answers[4]}
+5. Lead response speed: ${answers[5]}
+6. Current tools: ${toolsList}
+7. Tech comfort level: ${answers[7]}
+8. Monthly revenue: ${answers[8]}
+9. Biggest AI fear: ${answers[9]}
+10. Task they want to hand off: ${answers[10]}
+
+Write a personalized 90-day automation roadmap. Structure it with these exact sections:
+
+## YOUR SITUATION IN ONE PARAGRAPH
+Briefly summarize what you're seeing about their business based on the answers. Be direct and specific. Don't be generic.
+
+## YOUR TOP 3 AUTOMATION WINS (Days 1–30)
+The three highest-ROI, lowest-effort automations they should implement first. For each one:
+- Name the automation
+- Specific tool to use (name the actual tool, not a category)
+- Estimated time to set up
+- What it replaces / what it saves
+
+## MONTH 2 MOVES (Days 31–60)
+Two to three next-level automations that build on Month 1. Slightly more complex but higher leverage.
+
+## MONTH 3: STACK THE SYSTEM (Days 61–90)
+How to connect and compound what they've built. What does their automated business look like at 90 days if they execute?
+
+## THE ONE THING TO DO TODAY
+One specific first step they can take in the next 60 minutes. Make it concrete and doable.
+
+## ADDRESSING YOUR FEAR
+Directly address their stated fear about AI (answer #9) with honesty and specificity.
+
+Use plain language. No fluff. Be specific about tool names, costs where relevant, and time estimates. This person is a real business owner who needs real advice, not marketing copy. Format with clear headers and short paragraphs or bullet points.`;
+}
+
+const loadingMessages = [
+  "Analyzing your business profile...",
+  "Identifying highest-ROI automation opportunities...",
+  "Matching tools to your tech comfort level...",
+  "Building your 30-60-90 day sequence...",
+  "Addressing your specific roadblocks...",
+  "Finalizing your personalized roadmap..."
+];
+
+async function generateRoadmap() {
+  document.getElementById('form-state').style.display = 'none';
+  document.getElementById('loading-state').style.display = 'block';
+
+  let msgIdx = 0;
+  const msgEl = document.getElementById('loader-msg');
+  const msgInterval = setInterval(() => {
+    msgIdx = (msgIdx + 1) % loadingMessages.length;
+    msgEl.textContent = loadingMessages[msgIdx];
+  }, 2200);
+
+  try {
+    const response = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: buildPrompt() })
+    });
+
+    clearInterval(msgInterval);
+
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
+    const data = await response.json();
+    const text = data.result;
+
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('results-state').style.display = 'block';
+    document.getElementById('report-content').innerHTML = formatReport(text);
+    document.getElementById('progress-fill').style.width = '100%';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  } catch (err) {
+    clearInterval(msgInterval);
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('form-state').style.display = 'block';
+    document.getElementById('form-state').innerHTML = `<div style="padding:40px;text-align:center;color:#d4420a;">
+      <p style="font-size:18px;margin-bottom:12px;">Something went wrong generating your report.</p>
+      <p style="font-size:14px;color:#8a8070;">Error: ${err.message}</p>
+      <button onclick="location.reload()" style="margin-top:20px;padding:12px 28px;background:#0a0a0a;color:#fff;border:none;border-radius:3px;cursor:pointer;font-size:15px;">Try Again</button>
+    </div>`;
+  }
+}
+
+function formatReport(text) {
+  // Convert markdown to styled HTML
+  let html = text
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, (m) => `<ul>${m}</ul>`)
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/^(?!<[hul])/gm, '')
+    ;
+
+  // Wrap loose text in paragraphs
+  html = html.split('\n').map(line => {
+    if (line.startsWith('<h') || line.startsWith('<ul') || line.startsWith('<li') || line.startsWith('<p') || line.trim() === '') return line;
+    return `<p>${line}</p>`;
+  }).join('\n');
+
+  return html;
+}
+
+function restartAudit() {
+  location.reload();
+}
+</script>
+</body>
+</html>
